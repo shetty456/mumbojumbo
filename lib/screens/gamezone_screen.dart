@@ -8,14 +8,12 @@ import 'package:mumbojumbo/common/models/common_models.dart';
 import 'dart:math';
 
 import 'package:mumbojumbo/common/router.dart';
-
 class GameZoneScreen extends HookWidget {
   const GameZoneScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final anagrams = useState<List<JumbleWord>>([]);
-
     final currentAnagram = useState<String>('');
     final correctAnswer = useState<String>('');
     final currentHint = useState<String>('');
@@ -25,6 +23,17 @@ class GameZoneScreen extends HookWidget {
     final timeLeft = useState<int>(30);
     final controller = useTextEditingController();
     final focusNode = useFocusNode();
+    final isButtonEnabled = useState<bool>(false); // State for button enabled status
+
+    // Listener for text changes
+    useEffect(() {
+      void listener() {
+        isButtonEnabled.value = controller.text.isNotEmpty; // Enable button if text is not empty
+      }
+
+      controller.addListener(listener);
+      return () => controller.removeListener(listener); // Cleanup the listener
+    }, [controller]);
 
     String jumbleWord(String word) {
       List<String> characters = word.split('');
@@ -64,23 +73,22 @@ class GameZoneScreen extends HookWidget {
       });
     }
 
-  Future<void> loadAnagrams() async {
-  final String response = await rootBundle.loadString('lib/data/words.json');
-  final List<dynamic> data = json.decode(response);
+    Future<void> loadAnagrams() async {
+      final String response = await rootBundle.loadString('lib/data/words.json');
+      final List<dynamic> data = json.decode(response);
 
-  final validData = data.where((item) => item['originalWord'] != null && item['hint'] != null);
+      final validData = data.where((item) => item['originalWord'] != null && item['hint'] != null);
 
-  anagrams.value = validData.map((item) => JumbleWord.fromJson(item)).toList();
+      anagrams.value = validData.map((item) => JumbleWord.fromJson(item)).toList();
 
-  if (anagrams.value.isNotEmpty) {
-    currentHint.value = anagrams.value[questionIndex.value].hint ?? 'No hint available';
-    correctAnswer.value = anagrams.value[questionIndex.value].originalWord;
-    currentAnagram.value = jumbleWord(correctAnswer.value);
+      if (anagrams.value.isNotEmpty) {
+        currentHint.value = anagrams.value[questionIndex.value].hint ?? 'No hint available';
+        correctAnswer.value = anagrams.value[questionIndex.value].originalWord;
+        currentAnagram.value = jumbleWord(correctAnswer.value);
 
-    startTimer();
-  }
-}
-
+        startTimer();
+      }
+    }
 
     useEffect(() {
       loadAnagrams();
@@ -163,11 +171,10 @@ class GameZoneScreen extends HookWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => submitAnswer(controller.text),
+              onPressed: isButtonEnabled.value ? () => submitAnswer(controller.text) : null, // Enable button conditionally
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.teal,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
               child: const Text('Submit'),
             ),
