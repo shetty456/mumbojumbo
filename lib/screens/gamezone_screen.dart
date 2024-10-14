@@ -64,20 +64,23 @@ class GameZoneScreen extends HookWidget {
       });
     }
 
-    Future<void> loadAnagrams() async {
-      final String response =
-          await rootBundle.loadString('lib/data/words.json');
-      final List<dynamic> data = json.decode(response);
-      anagrams.value = data.map((item) => JumbleWord.fromJson(item)).toList();
+  Future<void> loadAnagrams() async {
+  final String response = await rootBundle.loadString('lib/data/words.json');
+  final List<dynamic> data = json.decode(response);
 
-      if (anagrams.value.isNotEmpty) {
-        currentHint.value = anagrams.value[questionIndex.value].hint ?? '';
-        correctAnswer.value = anagrams.value[questionIndex.value].originalWord;
-        currentAnagram.value = jumbleWord(correctAnswer.value);
+  final validData = data.where((item) => item['originalWord'] != null && item['hint'] != null);
 
-        startTimer();
-      }
-    }
+  anagrams.value = validData.map((item) => JumbleWord.fromJson(item)).toList();
+
+  if (anagrams.value.isNotEmpty) {
+    currentHint.value = anagrams.value[questionIndex.value].hint ?? 'No hint available';
+    correctAnswer.value = anagrams.value[questionIndex.value].originalWord;
+    currentAnagram.value = jumbleWord(correctAnswer.value);
+
+    startTimer();
+  }
+}
+
 
     useEffect(() {
       loadAnagrams();
