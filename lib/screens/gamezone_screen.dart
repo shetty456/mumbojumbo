@@ -111,7 +111,6 @@ class GameZoneScreen extends HookWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.blueGrey[900],
       appBar: AppBar(
         title: const Text('Mumbo Jumbo'),
         backgroundColor: Colors.teal,

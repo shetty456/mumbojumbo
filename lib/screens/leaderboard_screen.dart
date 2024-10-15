@@ -10,7 +10,29 @@ class LeaderboardScreen extends HookConsumerWidget {
     final leaderboard = ref.watch(leaderboardControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Leaderboard')),
+      appBar: AppBar(
+        title: SizedBox(
+          height: 50, // Adjust the height of the search bar
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Search player...',
+              filled: true,
+              fillColor: Colors.grey[200], // Background color of search bar
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              prefixIcon: const Icon(Icons.search),
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            ),
+            onChanged: (query) {
+              // setState(() {
+              //   searchQuery = query;
+              // });
+            },
+          ),
+        ),
+      ),
       body: ListView.builder(
         itemCount: leaderboard.entries.length,
         itemBuilder: (context, index) {
