@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:mumbojumbo/common/models/common_models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 part 'common_providers.g.dart';
 
@@ -10,7 +11,7 @@ part 'common_providers.g.dart';
 class GameController extends _$GameController {
   @override
   GameState build() {
-    return GameState(
+    return const GameState(
       player: User(id: '', name: ''),
       score: 0,
       questions: [],
@@ -22,7 +23,7 @@ class GameController extends _$GameController {
   Future<void> initializeGame(List<JumbleWord> questions) async {
     final userId = _generateRandomUserId();
     final userName = _generateRandomUserName();
-    
+
     state = state.copyWith(
       player: User(id: userId, name: userName),
       questions: questions,
@@ -36,15 +37,18 @@ class GameController extends _$GameController {
       state = state.copyWith(score: state.score + 1);
     }
     if (state.currentQuestionIndex < state.questions.length - 1) {
-      state = state.copyWith(currentQuestionIndex: state.currentQuestionIndex + 1);
+      state =
+          state.copyWith(currentQuestionIndex: state.currentQuestionIndex + 1);
     } else {
       // Game over, handle game completion
     }
   }
 
   // Helper methods
-  String _generateRandomUserId() => DateTime.now().millisecondsSinceEpoch.toString();
-  String _generateRandomUserName() => 'Player${DateTime.now().millisecondsSinceEpoch}';
+  String _generateRandomUserId() =>
+      DateTime.now().millisecondsSinceEpoch.toString();
+  String _generateRandomUserName() =>
+      'Player${DateTime.now().millisecondsSinceEpoch}';
 }
 
 // Provider to fetch jumbled words from a remote source (e.g., Firebase or a JSON API)
@@ -60,8 +64,10 @@ Future<List<JumbleWord>> fetchJumbledWords(FetchJumbledWordsRef ref) async {
   //   throw Exception('Failed to load words');
   // }
   return [
-    JumbleWord(originalWord: 'meditation', hint: 'It helps in calming the mind'),
-    JumbleWord(originalWord: 'spirituality', hint: 'Inner search for truth'),
+    const JumbleWord(
+        originalWord: 'meditation', hint: 'It helps in calming the mind'),
+    const JumbleWord(
+        originalWord: 'spirituality', hint: 'Inner search for truth'),
   ];
 }
 
@@ -70,18 +76,40 @@ Future<List<JumbleWord>> fetchJumbledWords(FetchJumbledWordsRef ref) async {
 class LeaderboardController extends _$LeaderboardController {
   @override
   Leaderboard build() {
-    return Leaderboard(entries: []);
+    _loadLeaderboardFromAsset();
+    return const Leaderboard(entries: []);
   }
 
   // Add an entry to the leaderboard
   Future<void> addEntry(User player, int score) async {
-    final newEntry = LeaderboardEntry(userId: player.id, userName: player.name, score: score);
-    final updatedEntries = List<LeaderboardEntry>.from(state.entries)..add(newEntry);
+    final newEntry = LeaderboardEntry(
+        userId: player.id, userName: player.name, score: score);
+    final updatedEntries = List<LeaderboardEntry>.from(state.entries)
+      ..add(newEntry);
 
     state = state.copyWith(entries: updatedEntries);
 
     // Optionally save to local storage or Firebase
     await _saveLeaderboardToLocal(updatedEntries);
+  }
+
+  // Load leaderboard from a JSON file in assets
+  Future<void> _loadLeaderboardFromAsset() async {
+    try {
+      // Load the leaderboard data from assets (rootBundle)
+      final jsonString =
+          await rootBundle.loadString('lib/data/leaderboard.json');
+      final jsonList = jsonDecode(jsonString) as List<dynamic>;
+      final loadedEntries =
+          jsonList.map((json) => LeaderboardEntry.fromJson(json)).toList();
+      // Sort the entries based on score in descending order
+      loadedEntries.sort((a, b) => b.score.compareTo(a.score));
+      // Update the state with the loaded entries
+      state = state.copyWith(entries: loadedEntries);
+    } catch (e) {
+      // Handle errors such as missing file or invalid JSON format
+      print('Error loading leaderboard from assets: $e');
+    }
   }
 
   Future<void> _saveLeaderboardToLocal(List<LeaderboardEntry> entries) async {
@@ -95,7 +123,8 @@ class LeaderboardController extends _$LeaderboardController {
     final jsonString = prefs.getString('leaderboard');
     if (jsonString != null) {
       final jsonList = jsonDecode(jsonString) as List<dynamic>;
-      final loadedEntries = jsonList.map((json) => LeaderboardEntry.fromJson(json)).toList();
+      final loadedEntries =
+          jsonList.map((json) => LeaderboardEntry.fromJson(json)).toList();
       state = state.copyWith(entries: loadedEntries);
     }
   }

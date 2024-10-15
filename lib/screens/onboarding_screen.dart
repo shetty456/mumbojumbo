@@ -21,6 +21,10 @@ class OnboardingScreen extends StatelessWidget {
               onPressed: () => context.go(AppRoutePaths.gamezone),
               child: const Text('Start Game'),
             ),
+            ElevatedButton(
+              onPressed: () => context.go(AppRoutePaths.leaderboard),
+              child: const Text('Go to Leaderboard'),
+            ),
           ],
         ),
       ),

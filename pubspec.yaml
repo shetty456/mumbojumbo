@@ -75,6 +75,7 @@ flutter:
   assets:
     - assets/sounds/bg_music.mp3
     - lib/data/words.json
+    - lib/data/leaderboard.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

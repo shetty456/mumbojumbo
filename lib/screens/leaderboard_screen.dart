@@ -1,38 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mumbojumbo/common/providers/common_providers.dart';
 
-class LeaderboardScreen extends StatelessWidget {
+class LeaderboardScreen extends HookConsumerWidget {
   const LeaderboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Dummy leaderboard data for now
-    final leaderboard = [
-      {'name': 'Player 1', 'score': 100},
-      {'name': 'Player 2', 'score': 90},
-      {'name': 'Player 3', 'score': 80},
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final leaderboard = ref.watch(leaderboardControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Leaderboard')),
+      appBar: AppBar(title: const Text('Leaderboard')),
       body: ListView.builder(
-        itemCount: leaderboard.length,
+        itemCount: leaderboard.entries.length,
         itemBuilder: (context, index) {
-          final player = leaderboard[index];
+          final player = leaderboard.entries[index];
           return ListTile(
-            leading: Icon(
-              index == 0
-                  ? Icons.emoji_events
-                  : Icons.person, // Gold for first, person for others
-              color: index == 0
-                  ? Colors.amber
-                  : index == 1
-                      ? Colors.grey
-                      : index == 2
-                          ? Colors.orange
-                          : null,
+            leading: IconButton(
+              onPressed: () {
+                return;
+              },
+              icon: Text('#${index + 1}'),
             ),
-            title: Text(player['name'].toString()),
-            trailing: Text(player['score'].toString()),
+            title: Text(player.userName),
+            trailing: Text(player.score.toString()),
           );
         },
       ),
