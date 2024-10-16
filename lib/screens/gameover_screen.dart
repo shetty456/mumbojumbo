@@ -7,12 +7,16 @@ import 'package:mumbojumbo/screens/onboarding_screen.dart';
 
 class GameoverScreen extends HookConsumerWidget {
   const GameoverScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+   final state = GoRouter.of(context).routerDelegate.currentConfiguration;
+    final int finalScore = state.extra as int? ?? 0;
+
     return Scaffold(
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -20,32 +24,40 @@ class GameoverScreen extends HookConsumerWidget {
                 'GAME OVER',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 50, // Large size for emphasis
-                  fontWeight: FontWeight.bold, // Bold and dramatic
-                  color: Colors
-                      .redAccent, // Red is often used for failure or urgency
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
                   shadows: [
                     Shadow(
                       blurRadius: 10.0,
-                      color: Colors.black87, // Dark shadow for depth
+                      color: Colors.black87,
                       offset: Offset(4, 4),
                     ),
                   ],
-                  letterSpacing: 2.0, // Slight spacing to add intensity
+                  letterSpacing: 2.0,
                 ),
               )
                   .animate()
-                  .fadeIn(duration: 1.seconds) // Fade in animation
-                  // Scale animation
+                  .fadeIn(duration: 1.seconds)
                   .flip(duration: 1.2.seconds)
                   .scale(duration: 0.6.seconds, curve: Curves.easeOut),
+              vHeight(36),
+              // Display the final score
+              Text(
+                'Your Score: $finalScore',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
               vHeight(36),
               ElevatedButton(
                 onPressed: () => context.go(AppRoutePaths.onboarding),
                 child: const Text('Start a New Game'),
               ),
               vHeight(8),
-              // todo: this button should be placed somewhere else
               OutlinedButton(
                 onPressed: () => context.push(AppRoutePaths.leaderboard),
                 child: const Text('Go to Leaderboard'),
@@ -57,3 +69,4 @@ class GameoverScreen extends HookConsumerWidget {
     );
   }
 }
+

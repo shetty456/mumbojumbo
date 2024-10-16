@@ -19,30 +19,27 @@ class GameZoneScreen extends HookWidget {
     final currentAnagram = useState<String>('');
     final correctAnswer = useState<String>('');
     final currentHint = useState<String>('');
-    final score = useState<int>(0);
+    final score = useState<int>(0);  // Score state
     final questionIndex = useState<int>(0);
     final timer = useState<Timer?>(null);
     final timeLeft = useState<int>(30);
     final controller = useTextEditingController();
     final focusNode = useFocusNode();
-    final isButtonEnabled = useState<bool>(false); // State for button enabled status
+    final isButtonEnabled = useState<bool>(false);
 
-    // Listener for text changes
     useEffect(() {
       void listener() {
-        isButtonEnabled.value = controller.text.isNotEmpty; // Enable button if text is not empty
+        isButtonEnabled.value = controller.text.isNotEmpty;
       }
 
       controller.addListener(listener);
-      return () => controller.removeListener(listener); // Cleanup the listener
+      return () => controller.removeListener(listener);
     }, [controller]);
 
-    // Using useAnimationController hook to create an AnimationController
     final animationController = useAnimationController(
-      duration: const Duration(seconds: 5), // Set animation duration
-    ); // Start animation from 1.0 (100%) and reverse
+      duration: const Duration(seconds: 5),
+    );
 
-    // Map the controller's value range (0.0 - 1.0) to a range of 0.2 to 0.0 (20% to 0%)
     final animation = useMemoized(() {
       return Tween<double>(begin: 1.0, end: 0.0).animate(animationController);
     }, [animationController]);
@@ -57,22 +54,7 @@ class GameZoneScreen extends HookWidget {
       timer.value?.cancel();
       controller.clear();
       timeLeft.value = 30;
-      context.go(AppRoutePaths.gameover);
-      // showDialog(
-      //   context: context,
-      //   builder: (_) => AlertDialog(
-      //     title: const Text('Game Over'),
-      //     content: Text('Your score: ${score.value}'),
-      //     actions: [
-      //       TextButton(
-      //         onPressed: () {
-      //           context.go(AppRoutePaths.onboarding);
-      //         },
-      //         child: const Text('Go Home'),
-      //       ),
-      //     ],
-      //   ),
-      // );
+     context.go(AppRoutePaths.gameover, extra: score.value);
     }
 
     void startTimer() {
@@ -126,9 +108,37 @@ class GameZoneScreen extends HookWidget {
       }
     }
 
+    int calculateScore(int timeTakenInSeconds) {
+      if (timeTakenInSeconds <= 3) {
+        return 10;
+      } else if (timeTakenInSeconds <= 6) {
+        return 9;
+      } else if (timeTakenInSeconds <= 9) {
+        return 8;
+      } else if (timeTakenInSeconds <= 12) {
+        return 7;
+      } else if (timeTakenInSeconds <= 15) {
+        return 6;
+      } else if (timeTakenInSeconds <= 18) {
+        return 5;
+      } else if (timeTakenInSeconds <= 21) {
+        return 4;
+      } else if (timeTakenInSeconds <= 24) {
+        return 3;
+      } else if (timeTakenInSeconds <= 27) {
+        return 2;
+      } else if (timeTakenInSeconds <= 30) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+
     void submitAnswer(String answer) {
       if (answer.toLowerCase() == correctAnswer.value.toLowerCase()) {
-        score.value++;
+        // Calculate score based on time left
+        final int points = calculateScore(30 - timeLeft.value);
+        score.value += points; // Add points to total score
         nextQuestion();
       } else {
         endGame();
@@ -140,23 +150,34 @@ class GameZoneScreen extends HookWidget {
     }
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Mumbo Jumbo'),
-      // ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Displaying the score in the top right corner
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(), // Empty widget to keep score aligned to the right
+                  Text(
+                    'Score: ${score.value}',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: AnimatedBuilder(
                   animation: animation,
                   builder: (context, child) {
                     return LinearProgressIndicator(
-                      value: animation
-                          .value, // Animating progress value from 0.2 to 0.0
+                      value: animation.value,
                       color: Colors.green,
                       backgroundColor: Colors.grey,
                     );
@@ -164,7 +185,7 @@ class GameZoneScreen extends HookWidget {
                 ),
               ),
 
-              vHeight(32),
+              const SizedBox(height: 32),
               Text(
                 formatTime(timeLeft.value),
                 style: const TextStyle(
@@ -173,7 +194,7 @@ class GameZoneScreen extends HookWidget {
                     fontWeight: FontWeight.w900),
                 textAlign: TextAlign.center,
               ),
-              vHeight(32),
+              const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -181,9 +202,7 @@ class GameZoneScreen extends HookWidget {
                     Icons.info_outline,
                     color: Color(0xff34C759),
                   ),
-                  const SizedBox(
-                    width: 4,
-                  ),
+                  const SizedBox(width: 4),
                   Text(
                     currentHint.value,
                     style: const TextStyle(
@@ -194,20 +213,14 @@ class GameZoneScreen extends HookWidget {
                   ),
                 ],
               ),
-              vHeight(60),
-              // Text(
-              //   'Score: ${score.value}',
-              //   style: const TextStyle(
-              //     fontSize: 20,
-              //   ),
-              // ),
+              const SizedBox(height: 60),
               Text(
                 textAlign: TextAlign.center,
                 currentAnagram.value,
                 style:
                     const TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
               ),
-              vHeight(60),
+              const SizedBox(height: 60),
               TextField(
                 controller: controller,
                 focusNode: focusNode,
@@ -229,7 +242,7 @@ class GameZoneScreen extends HookWidget {
                 style: const TextStyle(color: Colors.black),
                 onSubmitted: submitAnswer,
               ),
-              vHeight(16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => submitAnswer(controller.text),
                 child: const Text('Submit'),
