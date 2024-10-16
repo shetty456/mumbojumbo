@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "936632880190",
+    "project_id": "mumbojumbo-1620b",
+    "storage_bucket": "mumbojumbo-1620b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936632880190:android:308b945b3bdd3ad1ff956f",
+        "android_client_info": {
+          "package_name": "com.mumbojumbo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZvi8WMI33paHaO35GubO-apR1_8Txyc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

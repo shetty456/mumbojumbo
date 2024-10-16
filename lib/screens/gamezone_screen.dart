@@ -8,22 +8,22 @@ import 'package:mumbojumbo/common/models/common_models.dart';
 import 'dart:math';
 
 import 'package:mumbojumbo/common/router.dart';
-import 'package:mumbojumbo/screens/onboarding_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mumbojumbo/main.dart';
 
 class GameZoneScreen extends HookWidget {
   const GameZoneScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-     final state = GoRouter.of(context).routerDelegate.currentConfiguration;
+    final state = GoRouter.of(context).routerDelegate.currentConfiguration;
     final extra = state.extra;
 
     String username = 'Player';
     if (extra is Map<String, dynamic>) {
       username = extra['username'] as String? ?? 'Player';
-      print('username: $username');
     }
-    
+
     final anagrams = useState<List<JumbleWord>>([]);
     final currentAnagram = useState<String>('');
     final correctAnswer = useState<String>('');
@@ -35,6 +35,7 @@ class GameZoneScreen extends HookWidget {
     final controller = useTextEditingController();
     final focusNode = useFocusNode();
     final isButtonEnabled = useState<bool>(false);
+    final progressValue = useState(1.0);
 
     useEffect(() {
       void listener() {
@@ -59,10 +60,25 @@ class GameZoneScreen extends HookWidget {
       return characters.join();
     }
 
+    void storeScore(String username, int score) async {
+      try {
+        await FirebaseFirestore.instance.collection('leaderboard').add({
+          'username': username,
+          'score': score,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+        print('Score stored successfully for $username');
+      } catch (e) {
+        print('Failed to store score: $e');
+      }
+    }
+
     void endGame() {
       timer.value?.cancel();
       controller.clear();
       timeLeft.value = 30;
+      storeScore(username, score.value);
       context.go(AppRoutePaths.gameover, extra: {
         'score': score.value,
         'username': username,
@@ -74,6 +90,7 @@ class GameZoneScreen extends HookWidget {
       timer.value = Timer.periodic(const Duration(seconds: 1), (Timer t) {
         if (timeLeft.value > 0) {
           timeLeft.value--;
+          progressValue.value = timeLeft.value / 30;
         } else {
           endGame();
         }
@@ -82,14 +99,23 @@ class GameZoneScreen extends HookWidget {
 
     Future<void> loadAnagrams() async {
       final String response =
-          await rootBundle.loadString('lib/data/words.json');
+          await rootBundle.loadString('lib/data/real_data.json');
       final List<dynamic> data = json.decode(response);
 
-      final validData = data.where(
-          (item) => item['originalWord'] != null && item['hint'] != null);
+// Filter the data where 'originalWord' and 'hint' are not null, then convert to List
+      final List<dynamic> validData = data
+          .where((item) =>
+              item['originalWord'] != null &&
+              item['hint'] != null &&
+              item['originalWord'].length < 10)
+          .toList();
 
+// Randomize the data
+      validData.shuffle(Random()); // Shuffle the list
+
+// Limit to 20 items and map to a list of JumbleWord objects
       anagrams.value =
-          validData.map((item) => JumbleWord.fromJson(item)).toList();
+          validData.take(20).map((item) => JumbleWord.fromJson(item)).toList();
 
       if (anagrams.value.isNotEmpty) {
         currentHint.value =
@@ -161,76 +187,87 @@ class GameZoneScreen extends HookWidget {
       return '${(Duration(seconds: seconds))}'.split('.')[0].padLeft(8, '0');
     }
 
+    // Determine the color based on the remaining time (green for > 25%, red for <= 25%)
+    Color getPieColor() {
+      if (progressValue.value > 0.25) {
+        return Colors.green;
+      } else {
+        return Colors.red;
+      }
+    }
+
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 24.0),
+            child: Text(
+              'HS: ${score.value}',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade500),
+            ),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(right: 24.0),
+            child: Text(
+              'Your Score: ${score.value}',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Displaying the score in the top right corner
+              // ClipRRect(
+              //   borderRadius: BorderRadius.circular(8),
+              //   child: AnimatedBuilder(
+              //     animation: animation,
+              //     builder: (context, child) {
+              //       return LinearProgressIndicator(
+              //         value: animation.value,
+              //         color: Colors.green,
+              //         backgroundColor: Colors.grey,
+              //       );
+              //     },
+              //   ),
+              // ),
+              // const SizedBox(height: 32),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(), // Empty widget to keep score aligned to the right
-                  Text(
-                    'Score: ${score.value}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const Spacer(),
+                  CustomPaint(
+                    size:
+                        const Size(60, 60), // Adjust the size of the pie chart
+                    painter:
+                        PieChartPainter(progressValue.value, getPieColor()),
                   ),
                 ],
-              ),
-
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: AnimatedBuilder(
-                  animation: animation,
-                  builder: (context, child) {
-                    return LinearProgressIndicator(
-                      value: animation.value,
-                      color: Colors.green,
-                      backgroundColor: Colors.grey,
-                    );
-                  },
-                ),
               ),
 
               const SizedBox(height: 32),
               Text(
-                formatTime(timeLeft.value),
+                currentHint.value,
                 style: const TextStyle(
-                    fontSize: 32,
-                    color: Colors.red,
-                    fontWeight: FontWeight.w900),
+                    fontSize: 28, color: spcolor, fontWeight: FontWeight.w900),
                 textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.info_outline,
-                    color: Color(0xff34C759),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    currentHint.value,
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xff34C759),
-                        fontWeight: FontWeight.w600),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
               ),
               const SizedBox(height: 60),
               Text(
                 textAlign: TextAlign.center,
-                currentAnagram.value,
+                currentAnagram.value.toLowerCase(),
                 style:
-                    const TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 60),
               TextField(
@@ -264,5 +301,54 @@ class GameZoneScreen extends HookWidget {
         ),
       ),
     );
+  }
+}
+
+// CustomPainter for the pie chart-like countdown effect
+class PieChartPainter extends CustomPainter {
+  final double
+      progress; // Progress value for the pie chart (1.0 is full, 0.0 is empty)
+  final Color pieColor; // Color for the pie based on the remaining time
+
+  PieChartPainter(this.progress, this.pieColor);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = pieColor;
+
+    double radius = min(size.width / 2, size.height / 2);
+    Offset center = Offset(size.width / 2, size.height / 2);
+
+    // Draw the pie chart's progress based on remaining time
+    double sweepAngle = 2 * pi * progress;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -pi / 2, // Start at the top (12 o'clock)
+      sweepAngle,
+      true,
+      paint,
+    );
+
+    // Draw the background color for the remaining part
+    Paint backgroundPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.grey[300]!; // Color for empty part of the pie
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -pi / 2 + sweepAngle, // Start after the progress arc
+      2 * pi - sweepAngle, // Cover the remaining part
+      true,
+      backgroundPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(PieChartPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.pieColor !=
+            pieColor; // Repaint only when progress or color changes
   }
 }

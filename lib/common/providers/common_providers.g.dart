@@ -38,22 +38,5 @@ final gameControllerProvider =
 );
 
 typedef _$GameController = AutoDisposeNotifier<GameState>;
-String _$leaderboardControllerHash() =>
-    r'16bee3ba9b22b44dee295d25625df2bfc17b48bf';
-
-/// See also [LeaderboardController].
-@ProviderFor(LeaderboardController)
-final leaderboardControllerProvider =
-    AutoDisposeNotifierProvider<LeaderboardController, Leaderboard>.internal(
-  LeaderboardController.new,
-  name: r'leaderboardControllerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$leaderboardControllerHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$LeaderboardController = AutoDisposeNotifier<Leaderboard>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
