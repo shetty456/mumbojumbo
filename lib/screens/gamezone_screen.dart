@@ -8,14 +8,14 @@ import 'package:mumbojumbo/common/models/common_models.dart';
 import 'dart:math';
 
 import 'package:mumbojumbo/common/router.dart';
-import 'package:mumbojumbo/screens/onboarding_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GameZoneScreen extends HookWidget {
   const GameZoneScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-     final state = GoRouter.of(context).routerDelegate.currentConfiguration;
+    final state = GoRouter.of(context).routerDelegate.currentConfiguration;
     final extra = state.extra;
 
     String username = 'Player';
@@ -23,7 +23,7 @@ class GameZoneScreen extends HookWidget {
       username = extra['username'] as String? ?? 'Player';
       print('username: $username');
     }
-    
+
     final anagrams = useState<List<JumbleWord>>([]);
     final currentAnagram = useState<String>('');
     final correctAnswer = useState<String>('');
@@ -59,10 +59,25 @@ class GameZoneScreen extends HookWidget {
       return characters.join();
     }
 
+    void storeScore(String username, int score) async {
+      try {
+        await FirebaseFirestore.instance.collection('scores').add({
+          'username': username,
+          'score': score,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+        print('Score stored successfully for $username');
+      } catch (e) {
+        print('Failed to store score: $e');
+      }
+    }
+
     void endGame() {
       timer.value?.cancel();
       controller.clear();
       timeLeft.value = 30;
+      storeScore(username, score.value);
       context.go(AppRoutePaths.gameover, extra: {
         'score': score.value,
         'username': username,
