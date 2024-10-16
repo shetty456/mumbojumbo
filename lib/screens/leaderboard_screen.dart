@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mumbojumbo/common/providers/common_providers.dart';
 
@@ -7,10 +8,9 @@ class LeaderboardScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ignore: unused_result
-    ref.refresh(leaderboardControllerProvider);
-    
-    final leaderboardAsyncValue = ref.watch(leaderboardControllerProvider);
+    final searchQuery = useState('');
+
+    final leaderboardAsyncValue = ref.watch(leaderboardControllerProvider(searchQuery.value));
 
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +29,8 @@ class LeaderboardScreen extends HookConsumerWidget {
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
             onChanged: (query) {
-              // Handle search logic here if needed
+              searchQuery.value = query;
+              ref.refresh(leaderboardControllerProvider(searchQuery.value));
             },
           ),
         ),
@@ -38,16 +39,16 @@ class LeaderboardScreen extends HookConsumerWidget {
         data: (leaderboard) => ListView.builder(
           itemCount: leaderboard.length,
           itemBuilder: (context, index) {
-            final leaderboardEntry = leaderboard[index]; 
+            final leaderboardEntry = leaderboard[index];
             return ListTile(
               leading: Text('#${index + 1}'),
-              title: Text(leaderboardEntry.userName), 
-              trailing: Text(leaderboardEntry.score.toString()), 
+              title: Text(leaderboardEntry.userName),
+              trailing: Text(leaderboardEntry.score.toString()),
             );
           },
         ),
-        loading: () => const Center(child: CircularProgressIndicator()), 
-        error: (error, stack) => Center(child: Text('Error: $error')), 
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
       ),
     );
   }

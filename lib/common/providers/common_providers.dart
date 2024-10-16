@@ -142,22 +142,25 @@ class LeaderboardEntry {
   LeaderboardEntry({required this.userName, required this.score});
 }
 
-// Provider to fetch leaderboard data
-final leaderboardControllerProvider = FutureProvider<List<LeaderboardEntry>>((ref) async {
-  return fetchLeaderboard();
+final leaderboardControllerProvider = FutureProvider.family<List<LeaderboardEntry>, String?>((ref, searchQuery) async {
+  return fetchLeaderboard(searchQuery: searchQuery);
 });
 
-Future<List<LeaderboardEntry>> fetchLeaderboard() async {
-  final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-      .collection('leaderboard')
-      .orderBy('score', descending: true)
-      .limit(100)
-      .get();
+Future<List<LeaderboardEntry>> fetchLeaderboard({String? searchQuery}) async {
+  Query query = FirebaseFirestore.instance.collection('leaderboard');
 
-  return querySnapshot.docs
-      .map((doc) => LeaderboardEntry(
-            userName: doc['username'],
-            score: doc['score'],
-          ))
-      .toList();
+  if (searchQuery != null && searchQuery.isNotEmpty) {
+    query = query.where('username', isEqualTo: searchQuery);
+  } else {
+    query = query.orderBy('score', descending: true);
+  }
+
+  final QuerySnapshot querySnapshot = await query.limit(100).get();
+
+  return querySnapshot.docs.map((doc) {
+    return LeaderboardEntry(
+      userName: doc['username'],
+      score: doc['score'],
+    );
+  }).toList();
 }
