@@ -586,7 +586,6 @@ LeaderboardEntry _$LeaderboardEntryFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$LeaderboardEntry {
-  String get userId => throw _privateConstructorUsedError;
   String get userName => throw _privateConstructorUsedError;
   int get score => throw _privateConstructorUsedError;
 
@@ -606,7 +605,7 @@ abstract class $LeaderboardEntryCopyWith<$Res> {
           LeaderboardEntry value, $Res Function(LeaderboardEntry) then) =
       _$LeaderboardEntryCopyWithImpl<$Res, LeaderboardEntry>;
   @useResult
-  $Res call({String userId, String userName, int score});
+  $Res call({String userName, int score});
 }
 
 /// @nodoc
@@ -624,15 +623,10 @@ class _$LeaderboardEntryCopyWithImpl<$Res, $Val extends LeaderboardEntry>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userId = null,
     Object? userName = null,
     Object? score = null,
   }) {
     return _then(_value.copyWith(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
       userName: null == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
@@ -653,7 +647,7 @@ abstract class _$$LeaderboardEntryImplCopyWith<$Res>
       __$$LeaderboardEntryImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String userId, String userName, int score});
+  $Res call({String userName, int score});
 }
 
 /// @nodoc
@@ -669,15 +663,10 @@ class __$$LeaderboardEntryImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userId = null,
     Object? userName = null,
     Object? score = null,
   }) {
     return _then(_$LeaderboardEntryImpl(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
       userName: null == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
@@ -693,14 +682,11 @@ class __$$LeaderboardEntryImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$LeaderboardEntryImpl implements _LeaderboardEntry {
-  const _$LeaderboardEntryImpl(
-      {required this.userId, required this.userName, required this.score});
+  const _$LeaderboardEntryImpl({required this.userName, required this.score});
 
   factory _$LeaderboardEntryImpl.fromJson(Map<String, dynamic> json) =>
       _$$LeaderboardEntryImplFromJson(json);
 
-  @override
-  final String userId;
   @override
   final String userName;
   @override
@@ -708,7 +694,7 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
 
   @override
   String toString() {
-    return 'LeaderboardEntry(userId: $userId, userName: $userName, score: $score)';
+    return 'LeaderboardEntry(userName: $userName, score: $score)';
   }
 
   @override
@@ -716,7 +702,6 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$LeaderboardEntryImpl &&
-            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.userName, userName) ||
                 other.userName == userName) &&
             (identical(other.score, score) || other.score == score));
@@ -724,7 +709,7 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, userId, userName, score);
+  int get hashCode => Object.hash(runtimeType, userName, score);
 
   /// Create a copy of LeaderboardEntry
   /// with the given fields replaced by the non-null parameter values.
@@ -745,15 +730,12 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
 
 abstract class _LeaderboardEntry implements LeaderboardEntry {
   const factory _LeaderboardEntry(
-      {required final String userId,
-      required final String userName,
+      {required final String userName,
       required final int score}) = _$LeaderboardEntryImpl;
 
   factory _LeaderboardEntry.fromJson(Map<String, dynamic> json) =
       _$LeaderboardEntryImpl.fromJson;
 
-  @override
-  String get userId;
   @override
   String get userName;
   @override

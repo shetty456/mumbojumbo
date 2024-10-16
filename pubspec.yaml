@@ -79,6 +79,7 @@ flutter:
   assets:
     - assets/sounds/bg_music.mp3
     - lib/data/words.json
+    - lib/data/real_data.json
     - lib/data/leaderboard.json
     - assets/images/
 

@@ -99,14 +99,23 @@ class GameZoneScreen extends HookWidget {
 
     Future<void> loadAnagrams() async {
       final String response =
-          await rootBundle.loadString('lib/data/words.json');
+          await rootBundle.loadString('lib/data/real_data.json');
       final List<dynamic> data = json.decode(response);
 
-      final validData = data.where(
-          (item) => item['originalWord'] != null && item['hint'] != null);
+// Filter the data where 'originalWord' and 'hint' are not null, then convert to List
+      final List<dynamic> validData = data
+          .where((item) =>
+              item['originalWord'] != null &&
+              item['hint'] != null &&
+              item['originalWord'].length < 10)
+          .toList();
 
+// Randomize the data
+      validData.shuffle(Random()); // Shuffle the list
+
+// Limit to 20 items and map to a list of JumbleWord objects
       anagrams.value =
-          validData.map((item) => JumbleWord.fromJson(item)).toList();
+          validData.take(20).map((item) => JumbleWord.fromJson(item)).toList();
 
       if (anagrams.value.isNotEmpty) {
         currentHint.value =
@@ -256,7 +265,7 @@ class GameZoneScreen extends HookWidget {
               const SizedBox(height: 60),
               Text(
                 textAlign: TextAlign.center,
-                currentAnagram.value,
+                currentAnagram.value.toLowerCase(),
                 style:
                     const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
               ),
