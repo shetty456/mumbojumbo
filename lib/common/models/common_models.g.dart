@@ -50,7 +50,6 @@ Map<String, dynamic> _$$GameStateImplToJson(_$GameStateImpl instance) =>
 _$LeaderboardEntryImpl _$$LeaderboardEntryImplFromJson(
         Map<String, dynamic> json) =>
     _$LeaderboardEntryImpl(
-      userId: json['userId'] as String,
       userName: json['userName'] as String,
       score: (json['score'] as num).toInt(),
     );
@@ -58,7 +57,6 @@ _$LeaderboardEntryImpl _$$LeaderboardEntryImplFromJson(
 Map<String, dynamic> _$$LeaderboardEntryImplToJson(
         _$LeaderboardEntryImpl instance) =>
     <String, dynamic>{
-      'userId': instance.userId,
       'userName': instance.userName,
       'score': instance.score,
     };

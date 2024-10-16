@@ -82,8 +82,7 @@ class LeaderboardController extends _$LeaderboardController {
 
   // Add an entry to the leaderboard
   Future<void> addEntry(User player, int score) async {
-    final newEntry = LeaderboardEntry(
-        userId: player.id, userName: player.name, score: score);
+    final newEntry = LeaderboardEntry(userName: player.name, score: score);
     final updatedEntries = List<LeaderboardEntry>.from(state.entries)
       ..add(newEntry);
 

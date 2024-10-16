@@ -43,7 +43,6 @@ class GameState with _$GameState {
 @freezed
 class LeaderboardEntry with _$LeaderboardEntry {
   const factory LeaderboardEntry({
-    required String userId,
     required String userName,
     required int score,
   }) = _LeaderboardEntry;
