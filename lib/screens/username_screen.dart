@@ -13,8 +13,7 @@ class UsernameScreen extends HookConsumerWidget {
 
     void submitUserName(String username) {
       // todo: here we can call the provider to check
-      print(username);
-      context.push(AppRoutePaths.gamezone);
+      context.go(AppRoutePaths.gamezone, extra: {"username": userNameController.text});
     }
 
     return Scaffold(
