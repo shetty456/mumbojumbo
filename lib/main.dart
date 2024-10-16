@@ -19,15 +19,26 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: spcolor),
         elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: spcolor, 
-          foregroundColor: Colors.white, 
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), 
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), 
+          style: ElevatedButton.styleFrom(
+            backgroundColor: spcolor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
-      ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: spcolor, // Text color
+            side: const BorderSide(color: spcolor), // Outline color
+            padding: const EdgeInsets.symmetric(
+                horizontal: 30, vertical: 15), // Padding
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+            ),
+          ),
+        ),
         useMaterial3: true,
       ),
       routerConfig: appRouter,

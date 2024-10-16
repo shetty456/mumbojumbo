@@ -9,13 +9,7 @@ class OnboardingScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userNameController = useTextEditingController();
-
-    void submitUserName(String username) {
-      // todo: here we can call the provider to check
-      print(username);
-      context.push(AppRoutePaths.gamezone);
-    }
+   
 
     return Scaffold(
       // appBar: AppBar(title: const Text('Welcome to Mumbo Jumbo')),
@@ -58,42 +52,24 @@ class OnboardingScreen extends HookConsumerWidget {
               const InstructionItem(
                   text:
                       'Guess the anagram names related to our ashram or spiritual themes.'),
-              const InstructionItem(text: 'Players have 30 seconds to guess.'),
+              const InstructionItem(text: 'Players have 30 seconds to type the right answer.'),
               const InstructionItem(
                   text:
                       'Correct guesses earn points and proceed to the next round.'),
               const InstructionItem(
                   text:
                       'If no one guesses correctly within 30 seconds, the game ends.'),
+                                    const InstructionItem(
+                  text:
+                      'One can attempt a maximum of 20 questions only.'),
               const Spacer(),
-              TextField(
-                controller: userNameController,
-                decoration: InputDecoration(
-                  hintText: 'Username',
-                  hintStyle: const TextStyle(color: Colors.black),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 12.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Color(0xffD9D9D9),
-                      width: 1.0,
-                    ),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.black),
-                onSubmitted: submitUserName,
-              ),
-              vHeight(8),
               ElevatedButton(
-                onPressed: () => submitUserName(userNameController.text),
+                onPressed: () => context.push(AppRoutePaths.username),
                 child: const Text('Start the Game'),
               ),
               vHeight(8),
               // todo: this button should be placed somewhere else
-              ElevatedButton(
+              OutlinedButton(
                 onPressed: () => context.push(AppRoutePaths.leaderboard),
                 child: const Text('Go to Leaderboard'),
               ),
@@ -103,11 +79,11 @@ class OnboardingScreen extends HookConsumerWidget {
       ),
     );
   }
-
-  SizedBox vHeight(double height) => SizedBox(
-        height: height,
-      );
 }
+
+SizedBox vHeight(double height) => SizedBox(
+      height: height,
+    );
 
 class InstructionItem extends StatelessWidget {
   final String text;
