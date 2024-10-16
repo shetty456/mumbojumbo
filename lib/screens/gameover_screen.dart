@@ -10,8 +10,16 @@ class GameoverScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-   final state = GoRouter.of(context).routerDelegate.currentConfiguration;
-    final int finalScore = state.extra as int? ?? 0;
+    final state = GoRouter.of(context).routerDelegate.currentConfiguration;
+    final extra = state.extra;
+
+    int finalScore = 0;
+    String username = 'Player';
+
+    if (extra is Map<String, dynamic>) {
+      finalScore = extra['score'] as int? ?? 0;
+      username = extra['username'] as String? ?? 'Player';
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -42,6 +50,20 @@ class GameoverScreen extends HookConsumerWidget {
                   .flip(duration: 1.2.seconds)
                   .scale(duration: 0.6.seconds, curve: Curves.easeOut),
               vHeight(36),
+
+              // Display the username
+              Text(
+                'Player: $username',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+
+              vHeight(16),
+
               // Display the final score
               Text(
                 'Your Score: $finalScore',
@@ -69,4 +91,3 @@ class GameoverScreen extends HookConsumerWidget {
     );
   }
 }
-

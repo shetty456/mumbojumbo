@@ -15,11 +15,20 @@ class GameZoneScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+     final state = GoRouter.of(context).routerDelegate.currentConfiguration;
+    final extra = state.extra;
+
+    String username = 'Player';
+    if (extra is Map<String, dynamic>) {
+      username = extra['username'] as String? ?? 'Player';
+      print('username: $username');
+    }
+    
     final anagrams = useState<List<JumbleWord>>([]);
     final currentAnagram = useState<String>('');
     final correctAnswer = useState<String>('');
     final currentHint = useState<String>('');
-    final score = useState<int>(0);  // Score state
+    final score = useState<int>(0); // Score state
     final questionIndex = useState<int>(0);
     final timer = useState<Timer?>(null);
     final timeLeft = useState<int>(30);
@@ -54,7 +63,10 @@ class GameZoneScreen extends HookWidget {
       timer.value?.cancel();
       controller.clear();
       timeLeft.value = 30;
-     context.go(AppRoutePaths.gameover, extra: score.value);
+      context.go(AppRoutePaths.gameover, extra: {
+        'score': score.value,
+        'username': username,
+      });
     }
 
     void startTimer() {
