@@ -16,7 +16,6 @@ class GameZoneScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final anagrams = useState<List<JumbleWord>>([]);
-
     final currentAnagram = useState<String>('');
     final correctAnswer = useState<String>('');
     final currentHint = useState<String>('');
@@ -26,6 +25,17 @@ class GameZoneScreen extends HookWidget {
     final timeLeft = useState<int>(30);
     final controller = useTextEditingController();
     final focusNode = useFocusNode();
+    final isButtonEnabled = useState<bool>(false); // State for button enabled status
+
+    // Listener for text changes
+    useEffect(() {
+      void listener() {
+        isButtonEnabled.value = controller.text.isNotEmpty; // Enable button if text is not empty
+      }
+
+      controller.addListener(listener);
+      return () => controller.removeListener(listener); // Cleanup the listener
+    }, [controller]);
 
     // Using useAnimationController hook to create an AnimationController
     final animationController = useAnimationController(
