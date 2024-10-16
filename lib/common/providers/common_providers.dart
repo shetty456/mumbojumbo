@@ -4,6 +4,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
+
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 part 'common_providers.g.dart';
 
 // Provider for the game state
@@ -71,61 +75,89 @@ Future<List<JumbleWord>> fetchJumbledWords(FetchJumbledWordsRef ref) async {
   ];
 }
 
-// Provider for managing the leaderboard
-@riverpod
-class LeaderboardController extends _$LeaderboardController {
-  @override
-  Leaderboard build() {
-    _loadLeaderboardFromAsset();
-    return const Leaderboard(entries: []);
-  }
+// // Provider for managing the leaderboard
+// @riverpod
+// class LeaderboardController extends _$LeaderboardController {
+//   @override
+//   Leaderboard build() {
+//     _loadLeaderboardFromAsset();
+//     return const Leaderboard(entries: []);
+//   }
 
-  // Add an entry to the leaderboard
-  Future<void> addEntry(User player, int score) async {
-    final newEntry = LeaderboardEntry(
-        userId: player.id, userName: player.name, score: score);
-    final updatedEntries = List<LeaderboardEntry>.from(state.entries)
-      ..add(newEntry);
+//   // Add an entry to the leaderboard
+//   Future<void> addEntry(User player, int score) async {
+//     final newEntry = LeaderboardEntry(
+//         userId: player.id, userName: player.name, score: score);
+//     final updatedEntries = List<LeaderboardEntry>.from(state.entries)
+//       ..add(newEntry);
 
-    state = state.copyWith(entries: updatedEntries);
+//     state = state.copyWith(entries: updatedEntries);
 
-    // Optionally save to local storage or Firebase
-    await _saveLeaderboardToLocal(updatedEntries);
-  }
+//     // Optionally save to local storage or Firebase
+//     await _saveLeaderboardToLocal(updatedEntries);
+//   }
 
-  // Load leaderboard from a JSON file in assets
-  Future<void> _loadLeaderboardFromAsset() async {
-    try {
-      // Load the leaderboard data from assets (rootBundle)
-      final jsonString =
-          await rootBundle.loadString('lib/data/leaderboard.json');
-      final jsonList = jsonDecode(jsonString) as List<dynamic>;
-      final loadedEntries =
-          jsonList.map((json) => LeaderboardEntry.fromJson(json)).toList();
-      // Sort the entries based on score in descending order
-      loadedEntries.sort((a, b) => b.score.compareTo(a.score));
-      // Update the state with the loaded entries
-      state = state.copyWith(entries: loadedEntries);
-    } catch (e) {
-      // Handle errors such as missing file or invalid JSON format
-      print('Error loading leaderboard from assets: $e');
-    }
-  }
+//   // Load leaderboard from a JSON file in assets
+//   Future<void> _loadLeaderboardFromAsset() async {
+//     try {
+//       // Load the leaderboard data from assets (rootBundle)
+//       final jsonString =
+//           await rootBundle.loadString('lib/data/leaderboard.json');
+//       final jsonList = jsonDecode(jsonString) as List<dynamic>;
+//       final loadedEntries =
+//           jsonList.map((json) => LeaderboardEntry.fromJson(json)).toList();
+//       // Sort the entries based on score in descending order
+//       loadedEntries.sort((a, b) => b.score.compareTo(a.score));
+//       // Update the state with the loaded entries
+//       state = state.copyWith(entries: loadedEntries);
+//     } catch (e) {
+//       // Handle errors such as missing file or invalid JSON format
+//       print('Error loading leaderboard from assets: $e');
+//     }
+//   }
 
-  Future<void> _saveLeaderboardToLocal(List<LeaderboardEntry> entries) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonEntries = entries.map((e) => e.toJson()).toList();
-    await prefs.setString('leaderboard', jsonEncode(jsonEntries));
-  }
+//   Future<void> _saveLeaderboardToLocal(List<LeaderboardEntry> entries) async {
+//     final prefs = await SharedPreferences.getInstance();
+//     final jsonEntries = entries.map((e) => e.toJson()).toList();
+//     await prefs.setString('leaderboard', jsonEncode(jsonEntries));
+//   }
 
-  Future<void> loadLeaderboardFromLocal() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString('leaderboard');
-    if (jsonString != null) {
-      final jsonList = jsonDecode(jsonString) as List<dynamic>;
-      final loadedEntries =
-          jsonList.map((json) => LeaderboardEntry.fromJson(json)).toList();
-      state = state.copyWith(entries: loadedEntries);
-    }
-  }
+//   Future<void> loadLeaderboardFromLocal() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     final jsonString = prefs.getString('leaderboard');
+//     if (jsonString != null) {
+//       final jsonList = jsonDecode(jsonString) as List<dynamic>;
+//       final loadedEntries =
+//           jsonList.map((json) => LeaderboardEntry.fromJson(json)).toList();
+//       state = state.copyWith(entries: loadedEntries);
+//     }
+//   }
+// }
+
+
+class LeaderboardEntry {
+  final String userName;
+  final int score;
+
+  LeaderboardEntry({required this.userName, required this.score});
+}
+
+// Provider to fetch leaderboard data
+final leaderboardControllerProvider = FutureProvider<List<LeaderboardEntry>>((ref) async {
+  return fetchLeaderboard();
+});
+
+Future<List<LeaderboardEntry>> fetchLeaderboard() async {
+  final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('leaderboard')
+      .orderBy('score', descending: true)
+      .limit(100)
+      .get();
+
+  return querySnapshot.docs
+      .map((doc) => LeaderboardEntry(
+            userName: doc['username'],
+            score: doc['score'],
+          ))
+      .toList();
 }

@@ -22,7 +22,6 @@ class GameZoneScreen extends HookWidget {
     String username = 'Player';
     if (extra is Map<String, dynamic>) {
       username = extra['username'] as String? ?? 'Player';
-      print('username: $username');
     }
 
     final anagrams = useState<List<JumbleWord>>([]);
@@ -63,7 +62,7 @@ class GameZoneScreen extends HookWidget {
 
     void storeScore(String username, int score) async {
       try {
-        await FirebaseFirestore.instance.collection('scores').add({
+        await FirebaseFirestore.instance.collection('leaderboard').add({
           'username': username,
           'score': score,
           'timestamp': FieldValue.serverTimestamp(),

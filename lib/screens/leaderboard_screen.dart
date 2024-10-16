@@ -7,17 +7,20 @@ class LeaderboardScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final leaderboard = ref.watch(leaderboardControllerProvider);
+    // ignore: unused_result
+    ref.refresh(leaderboardControllerProvider);
+    
+    final leaderboardAsyncValue = ref.watch(leaderboardControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: SizedBox(
-          height: 50, // Adjust the height of the search bar
+          height: 50,
           child: TextField(
             decoration: InputDecoration(
               hintText: 'Search player...',
               filled: true,
-              fillColor: Colors.grey[200], // Background color of search bar
+              fillColor: Colors.grey[200],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
@@ -26,28 +29,25 @@ class LeaderboardScreen extends HookConsumerWidget {
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
             onChanged: (query) {
-              // setState(() {
-              //   searchQuery = query;
-              // });
+              // Handle search logic here if needed
             },
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount: leaderboard.entries.length,
-        itemBuilder: (context, index) {
-          final player = leaderboard.entries[index];
-          return ListTile(
-            leading: IconButton(
-              onPressed: () {
-                return;
-              },
-              icon: Text('#${index + 1}'),
-            ),
-            title: Text(player.userName),
-            trailing: Text(player.score.toString()),
-          );
-        },
+      body: leaderboardAsyncValue.when(
+        data: (leaderboard) => ListView.builder(
+          itemCount: leaderboard.length,
+          itemBuilder: (context, index) {
+            final leaderboardEntry = leaderboard[index]; 
+            return ListTile(
+              leading: Text('#${index + 1}'),
+              title: Text(leaderboardEntry.userName), 
+              trailing: Text(leaderboardEntry.score.toString()), 
+            );
+          },
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()), 
+        error: (error, stack) => Center(child: Text('Error: $error')), 
       ),
     );
   }
