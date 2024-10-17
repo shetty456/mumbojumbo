@@ -224,79 +224,81 @@ class GameZoneScreen extends HookWidget {
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ClipRRect(
-              //   borderRadius: BorderRadius.circular(8),
-              //   child: AnimatedBuilder(
-              //     animation: animation,
-              //     builder: (context, child) {
-              //       return LinearProgressIndicator(
-              //         value: animation.value,
-              //         color: Colors.green,
-              //         backgroundColor: Colors.grey,
-              //       );
-              //     },
-              //   ),
-              // ),
-              // const SizedBox(height: 32),
-              Row(
-                children: [
-                  const Spacer(),
-                  CustomPaint(
-                    size:
-                        const Size(60, 60), // Adjust the size of the pie chart
-                    painter:
-                        PieChartPainter(progressValue.value, getPieColor()),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 32),
-              Text(
-                currentHint.value,
-                style: const TextStyle(
-                    fontSize: 28, color: spcolor, fontWeight: FontWeight.w900),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 60),
-              Text(
-                textAlign: TextAlign.center,
-                currentAnagram.value.toLowerCase(),
-                style:
-                    const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 60),
-              TextField(
-                controller: controller,
-                focusNode: focusNode,
-                decoration: InputDecoration(
-                  hintText: 'Type your answer',
-                  hintStyle: const TextStyle(color: Colors.black),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 12.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Color(0xffD9D9D9),
-                      width: 1.0,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ClipRRect(
+                //   borderRadius: BorderRadius.circular(8),
+                //   child: AnimatedBuilder(
+                //     animation: animation,
+                //     builder: (context, child) {
+                //       return LinearProgressIndicator(
+                //         value: animation.value,
+                //         color: Colors.green,
+                //         backgroundColor: Colors.grey,
+                //       );
+                //     },
+                //   ),
+                // ),
+                // const SizedBox(height: 32),
+                Row(
+                  children: [
+                    const Spacer(),
+                    CustomPaint(
+                      size:
+                          const Size(60, 60), // Adjust the size of the pie chart
+                      painter:
+                          PieChartPainter(progressValue.value, getPieColor()),
+                    ),
+                  ],
+                ),
+          
+                const SizedBox(height: 32),
+                Text(
+                  currentHint.value,
+                  style: const TextStyle(
+                      fontSize: 28, color: spcolor, fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 60),
+                Text(
+                  textAlign: TextAlign.center,
+                  currentAnagram.value.toLowerCase(),
+                  style:
+                      const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 60),
+                TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    hintText: 'Type your answer',
+                    hintStyle: const TextStyle(color: Colors.black),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 12.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: Color(0xffD9D9D9),
+                        width: 1.0,
+                      ),
                     ),
                   ),
+                  style: const TextStyle(color: Colors.black),
+                  onSubmitted: submitAnswer,
                 ),
-                style: const TextStyle(color: Colors.black),
-                onSubmitted: submitAnswer,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => submitAnswer(controller.text),
-                child: const Text('Submit'),
-              ),
-            ],
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => submitAnswer(controller.text),
+                  child: const Text('Submit'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

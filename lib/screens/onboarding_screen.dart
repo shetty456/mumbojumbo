@@ -14,66 +14,68 @@ class OnboardingScreen extends HookConsumerWidget {
     return Scaffold(
       // appBar: AppBar(title: const Text('Welcome to Mumbo Jumbo')),
       body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              vHeight(24),
-              const Text(
-                'MUMBO JUMBO',
-                style: TextStyle(fontSize: 32),
-                textAlign: TextAlign.center,
-              ),
-              vHeight(24),
-              Center(
-                child: Image.asset(
-                  'assets/images/logo.png',
-                  height: 80,
-                  width: 80,
-                  fit: BoxFit.cover,
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                vHeight(24),
+                const Text(
+                  'MUMBO JUMBO',
+                  style: TextStyle(fontSize: 32),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              vHeight(24),
-              const Text(
-                'A game of Grace, Luck and competence, without which you’ll not be successful',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                vHeight(24),
+                Center(
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              vHeight(36),
-              const Text(
-                'Rules of the Game',
-                style: TextStyle(fontSize: 22),
-              ),
-              vHeight(24),
-              const InstructionItem(
-                  text:
-                      'Guess the anagram names related to our ashram or spiritual themes.'),
-              const InstructionItem(text: 'Players have 30 seconds to type the right answer.'),
-              const InstructionItem(
-                  text:
-                      'Correct guesses earn points and proceed to the next round.'),
-              const InstructionItem(
-                  text:
-                      'If no one guesses correctly within 30 seconds, the game ends.'),
-                                    const InstructionItem(
-                  text:
-                      'One can attempt a maximum of 20 questions only.'),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () => context.push(AppRoutePaths.username),
-                child: const Text('Start the Game'),
-              ),
-              vHeight(8),
-              // todo: this button should be placed somewhere else
-              OutlinedButton(
-                onPressed: () => context.push(AppRoutePaths.leaderboard),
-                child: const Text('Go to Leaderboard'),
-              ),
-            ],
+                vHeight(24),
+                const Text(
+                  'A game of Grace, Luck and competence, without which you’ll not be successful',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                vHeight(36),
+                const Text(
+                  'Rules of the Game',
+                  style: TextStyle(fontSize: 22),
+                ),
+                vHeight(24),
+                const InstructionItem(
+                    text:
+                        'Guess the anagram names related to our ashram or spiritual themes.'),
+                const InstructionItem(text: 'Players have 30 seconds to type the right answer.'),
+                const InstructionItem(
+                    text:
+                        'Correct guesses earn points and proceed to the next round.'),
+                const InstructionItem(
+                    text:
+                        'If no one guesses correctly within 30 seconds, the game ends.'),
+                                      const InstructionItem(
+                    text:
+                        'One can attempt a maximum of 20 questions only.'),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: () => context.push(AppRoutePaths.username),
+                  child: const Text('Start the Game'),
+                ),
+                vHeight(8),
+                // todo: this button should be placed somewhere else
+                OutlinedButton(
+                  onPressed: () => context.push(AppRoutePaths.leaderboard),
+                  child: const Text('Go to Leaderboard'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
