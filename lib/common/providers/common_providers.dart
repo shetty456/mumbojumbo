@@ -138,8 +138,13 @@ Future<List<JumbleWord>> fetchJumbledWords(FetchJumbledWordsRef ref) async {
 class LeaderboardEntry {
   final String userName;
   final int score;
+  final int rank;
 
-  LeaderboardEntry({required this.userName, required this.score});
+  LeaderboardEntry({
+    required this.userName,
+    required this.score,
+    required this.rank,
+  });
 }
 
 final leaderboardControllerProvider = FutureProvider.family<List<LeaderboardEntry>, String?>((ref, searchQuery) async {
@@ -147,20 +152,27 @@ final leaderboardControllerProvider = FutureProvider.family<List<LeaderboardEntr
 });
 
 Future<List<LeaderboardEntry>> fetchLeaderboard({String? searchQuery}) async {
-  Query query = FirebaseFirestore.instance.collection('leaderboard');
+  final Query fullQuery = FirebaseFirestore.instance.collection('leaderboard')
+    .orderBy('score', descending: true);
 
-  if (searchQuery != null && searchQuery.isNotEmpty) {
-    query = query.where('username', isEqualTo: searchQuery);
-  } else {
-    query = query.orderBy('score', descending: true);
-  }
+  final QuerySnapshot fullQuerySnapshot = await fullQuery.get();
 
-  final QuerySnapshot querySnapshot = await query.limit(100).get();
-
-  return querySnapshot.docs.map((doc) {
+  final fullLeaderboard = fullQuerySnapshot.docs.asMap().entries.map((entry) {
+    final doc = entry.value;
+    final rank = entry.key + 1;
     return LeaderboardEntry(
       userName: doc['username'],
       score: doc['score'],
+      rank: rank,
     );
   }).toList();
+
+  if (searchQuery != null && searchQuery.isNotEmpty) {
+    return fullLeaderboard
+        .where((entry) => entry.userName == searchQuery)
+        .toList();
+  } 
+
+  return fullLeaderboard;
 }
+

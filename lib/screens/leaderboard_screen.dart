@@ -10,10 +10,10 @@ class LeaderboardScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final searchQuery = useState('');
 
-    final leaderboardAsyncValue = ref.watch(leaderboardControllerProvider(searchQuery.value));
+    final leaderboardAsyncValue = ref.watch(leaderboardControllerProvider(searchQuery.value.trim())); 
 
     Future<void> _refreshLeaderboard() async {
-      ref.refresh(leaderboardControllerProvider(searchQuery.value));
+      ref.refresh(leaderboardControllerProvider(searchQuery.value.trim()));
     }
 
     return Scaffold(
@@ -33,29 +33,36 @@ class LeaderboardScreen extends HookConsumerWidget {
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
             onChanged: (query) {
-              searchQuery.value = query;
+              searchQuery.value = query.trim();
               ref.refresh(leaderboardControllerProvider(searchQuery.value));
             },
           ),
         ),
       ),
-      body: leaderboardAsyncValue.when(
-        data: (leaderboard) => RefreshIndicator(
-          onRefresh: _refreshLeaderboard, 
-          child: ListView.builder(
-            itemCount: leaderboard.length,
-            itemBuilder: (context, index) {
-              final leaderboardEntry = leaderboard[index];
-              return ListTile(
-                leading: Text('#${index + 1}'),
-                title: Text(leaderboardEntry.userName),
-                trailing: Text(leaderboardEntry.score.toString()),
+      body: RefreshIndicator(
+        onRefresh: _refreshLeaderboard,
+        child: leaderboardAsyncValue.when(
+          data: (leaderboard) {
+            if (leaderboard.isEmpty) {
+              return const Center(
+                child: Text('No user found'),
               );
-            },
-          ),
+            }
+            return ListView.builder(
+              itemCount: leaderboard.length,
+              itemBuilder: (context, index) {
+                final leaderboardEntry = leaderboard[index];
+                return ListTile(
+                  leading: Text('#${leaderboardEntry.rank}'),
+                  title: Text(leaderboardEntry.userName),
+                  trailing: Text(leaderboardEntry.score.toString()),
+                );
+              },
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(child: Text('Error: $error')),
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
       ),
     );
   }
