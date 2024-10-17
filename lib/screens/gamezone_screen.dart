@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +11,7 @@ import 'dart:math';
 import 'package:mumbojumbo/common/router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mumbojumbo/main.dart';
+import 'package:mumbojumbo/screens/onboarding_screen.dart';
 
 class GameZoneScreen extends HookWidget {
   const GameZoneScreen({super.key});
@@ -37,6 +39,9 @@ class GameZoneScreen extends HookWidget {
     final isButtonEnabled = useState<bool>(false);
     final progressValue = useState(1.0);
 
+    // Initialize the audio player
+    final audioPlayer = useState(AudioPlayer());
+
     useEffect(() {
       void listener() {
         isButtonEnabled.value = controller.text.isNotEmpty;
@@ -46,13 +51,17 @@ class GameZoneScreen extends HookWidget {
       return () => controller.removeListener(listener);
     }, [controller]);
 
-    final animationController = useAnimationController(
-      duration: const Duration(seconds: 5),
-    );
+    // Function to play ticking sound
+    Future<void> playTickingSound() async {
+      await audioPlayer.value
+          .play(AssetSource('sounds/bg_music.mp3'), volume: 1.0);
+      audioPlayer.value.setReleaseMode(ReleaseMode.loop); // Loop the sound
+    }
 
-    final animation = useMemoized(() {
-      return Tween<double>(begin: 1.0, end: 0.0).animate(animationController);
-    }, [animationController]);
+    // Function to stop the ticking sound
+    Future<void> stopTickingSound() async {
+      await audioPlayer.value.stop();
+    }
 
     String jumbleWord(String word) {
       List<String> characters = word.split('');
@@ -174,12 +183,16 @@ class GameZoneScreen extends HookWidget {
 
     void submitAnswer(String answer) {
       if (answer.toLowerCase() == correctAnswer.value.toLowerCase()) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Rightly Guessed'),
+          duration: Duration(seconds: 2),
+        ));
         // Calculate score based on time left
         final int points = calculateScore(30 - timeLeft.value);
         score.value += points; // Add points to total score
         nextQuestion();
       } else {
-        showCenterModal(context, endGame);
+        showCenterModal(context, endGame, correctAnswer.value);
       }
     }
 
@@ -201,13 +214,10 @@ class GameZoneScreen extends HookWidget {
         automaticallyImplyLeading: false,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(left: 24.0),
-            child: Text(
-              'HS: ${score.value}',
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade500),
+            padding: const EdgeInsets.only(left: 24.0, top: 8.0),
+            child: CustomPaint(
+              size: const Size(60, 60), // Adjust the size of the pie chart
+              painter: PieChartPainter(progressValue.value, getPieColor()),
             ),
           ),
           const Spacer(),
@@ -230,32 +240,6 @@ class GameZoneScreen extends HookWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ClipRRect(
-                //   borderRadius: BorderRadius.circular(8),
-                //   child: AnimatedBuilder(
-                //     animation: animation,
-                //     builder: (context, child) {
-                //       return LinearProgressIndicator(
-                //         value: animation.value,
-                //         color: Colors.green,
-                //         backgroundColor: Colors.grey,
-                //       );
-                //     },
-                //   ),
-                // ),
-                // const SizedBox(height: 32),
-                Row(
-                  children: [
-                    const Spacer(),
-                    CustomPaint(
-                      size: const Size(
-                          60, 60), // Adjust the size of the pie chart
-                      painter:
-                          PieChartPainter(progressValue.value, getPieColor()),
-                    ),
-                  ],
-                ),
-
                 const SizedBox(height: 32),
                 Text(
                   currentHint.value,
@@ -265,14 +249,14 @@ class GameZoneScreen extends HookWidget {
                       fontWeight: FontWeight.w900),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 60),
+                vHeight(36),
                 Text(
                   textAlign: TextAlign.center,
                   currentAnagram.value.toLowerCase(),
                   style: const TextStyle(
                       fontSize: 64, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 60),
+                vHeight(36),
                 TextField(
                   controller: controller,
                   focusNode: focusNode,
@@ -307,7 +291,8 @@ class GameZoneScreen extends HookWidget {
     );
   }
 
-  void showCenterModal(BuildContext context, Function callback) {
+  void showCenterModal(
+      BuildContext context, Function callback, String correctAnswer) {
     showDialog(
       context: context,
       barrierDismissible: false, // Prevent dismissal by tapping outside
@@ -325,17 +310,27 @@ class GameZoneScreen extends HookWidget {
               8,
             ), // Adjust this value for rounded corners
           ),
-          backgroundColor: Colors.red.shade200,
-          child: const Padding(
-            padding: EdgeInsets.all(24.0),
+          backgroundColor: spcolor,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
             child: SizedBox(
-              height: 50,
+              height: 100,
               width: double.infinity,
               child: Center(
-                child: Text(
-                  'Wrong Answer',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Wrong Answer',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 24, color: Colors.white),
+                    ),
+                    Text(
+                      'Correct answer is: $correctAnswer',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
             ),
