@@ -93,6 +93,7 @@ class GameZoneScreen extends HookWidget {
         context.go(AppRoutePaths.gameover, extra: {
           'score': score.value,
           'username': username,
+          'correctAnswer': correctAnswer.value, 
         });
       }
     }
@@ -194,7 +195,7 @@ class GameZoneScreen extends HookWidget {
         score.value += points; // Add points to total score
         nextQuestion();
       } else {
-        showCenterModal(context, endGame, correctAnswer.value);
+        endGame();
       }
     }
 
@@ -293,54 +294,54 @@ class GameZoneScreen extends HookWidget {
     );
   }
 
-  void showCenterModal(
-      BuildContext context, Function callback, String correctAnswer) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent dismissal by tapping outside
-      builder: (BuildContext context) {
-        Future.delayed(const Duration(seconds: 3), () {
-          if (context.mounted) {
-            Navigator.of(context).pop();
-          }
-          callback();
-        });
+  // void showCenterModal(
+  //     BuildContext context, Function callback, String correctAnswer) {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false, // Prevent dismissal by tapping outside
+  //     builder: (BuildContext context) {
+  //       Future.delayed(const Duration(seconds: 3), () {
+  //         if (context.mounted) {
+  //           Navigator.of(context).pop();
+  //         }
+  //         callback();
+  //       });
 
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              8,
-            ), // Adjust this value for rounded corners
-          ),
-          backgroundColor: spcolor,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: SizedBox(
-              height: 100,
-              width: double.infinity,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Wrong Answer',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 24, color: Colors.white),
-                    ),
-                    Text(
-                      'Correct answer is: $correctAnswer',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(
+  //             8,
+  //           ), // Adjust this value for rounded corners
+  //         ),
+  //         backgroundColor: spcolor,
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(24.0),
+  //           child: SizedBox(
+  //             height: 100,
+  //             width: double.infinity,
+  //             child: Center(
+  //               child: Column(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 children: [
+  //                   const Text(
+  //                     'Wrong Answer',
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(fontSize: 24, color: Colors.white),
+  //                   ),
+  //                   Text(
+  //                     'Correct answer is: $correctAnswer',
+  //                     textAlign: TextAlign.center,
+  //                     style: const TextStyle(fontSize: 18, color: Colors.white),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }
 
 // CustomPainter for the pie chart-like countdown effect

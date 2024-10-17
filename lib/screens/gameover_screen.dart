@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mumbojumbo/common/router.dart';
+import 'package:mumbojumbo/main.dart';
 import 'package:mumbojumbo/screens/onboarding_screen.dart';
 
 class GameoverScreen extends HookConsumerWidget {
@@ -25,10 +26,12 @@ class GameoverScreen extends HookConsumerWidget {
 
     int finalScore = 0;
     String username = 'Player';
+    String correctAnswer = 'Correct Answer';
 
     if (extra is Map<String, dynamic>) {
       finalScore = extra['score'] as int? ?? 0;
       username = extra['username'] as String? ?? 'Player';
+      correctAnswer = extra['correctAnswer'] as String? ?? 'Correct Answer';
     }
 
     return Scaffold(
@@ -103,6 +106,16 @@ class GameoverScreen extends HookConsumerWidget {
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.green,
+                    ),
+                  ),
+                  vHeight(36),
+                       Text(
+                    'Correct Answer was : $correctAnswer',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: spcolor,
                     ),
                   ),
                   vHeight(36),
