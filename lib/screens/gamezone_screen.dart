@@ -88,10 +88,13 @@ class GameZoneScreen extends HookWidget {
       controller.clear();
       timeLeft.value = 30;
       storeScore(username, score.value);
-      context.go(AppRoutePaths.gameover, extra: {
-        'score': score.value,
-        'username': username,
-      });
+
+      if (context.mounted) {
+        context.go(AppRoutePaths.gameover, extra: {
+          'score': score.value,
+          'username': username,
+        });
+      }
     }
 
     void startTimer() {
@@ -148,7 +151,6 @@ class GameZoneScreen extends HookWidget {
         currentAnagram.value = jumbleWord(correctAnswer.value);
         timeLeft.value = 30;
         controller.clear();
-        focusNode.requestFocus();
         startTimer();
       } else {
         endGame();
