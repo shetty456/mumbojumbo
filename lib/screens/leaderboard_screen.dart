@@ -12,6 +12,10 @@ class LeaderboardScreen extends HookConsumerWidget {
 
     final leaderboardAsyncValue = ref.watch(leaderboardControllerProvider(searchQuery.value));
 
+    Future<void> _refreshLeaderboard() async {
+      ref.refresh(leaderboardControllerProvider(searchQuery.value));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: SizedBox(
@@ -36,16 +40,19 @@ class LeaderboardScreen extends HookConsumerWidget {
         ),
       ),
       body: leaderboardAsyncValue.when(
-        data: (leaderboard) => ListView.builder(
-          itemCount: leaderboard.length,
-          itemBuilder: (context, index) {
-            final leaderboardEntry = leaderboard[index];
-            return ListTile(
-              leading: Text('#${index + 1}'),
-              title: Text(leaderboardEntry.userName),
-              trailing: Text(leaderboardEntry.score.toString()),
-            );
-          },
+        data: (leaderboard) => RefreshIndicator(
+          onRefresh: _refreshLeaderboard, 
+          child: ListView.builder(
+            itemCount: leaderboard.length,
+            itemBuilder: (context, index) {
+              final leaderboardEntry = leaderboard[index];
+              return ListTile(
+                leading: Text('#${index + 1}'),
+                title: Text(leaderboardEntry.userName),
+                trailing: Text(leaderboardEntry.score.toString()),
+              );
+            },
+          ),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
