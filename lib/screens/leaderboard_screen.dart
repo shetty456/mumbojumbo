@@ -8,19 +8,34 @@ class LeaderboardScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final searchQuery = useState('');
+    final searchController = useTextEditingController();
+    final isSearchTriggered = useState(false);
+    final leaderboardAsyncValue = ref.watch(
+      leaderboardControllerProvider(searchController.text.trim()),
+    );
 
-    final leaderboardAsyncValue = ref.watch(leaderboardControllerProvider(searchQuery.value.trim())); 
-
-    Future<void> _refreshLeaderboard() async {
-      ref.refresh(leaderboardControllerProvider(searchQuery.value.trim()));
+    Future<void> refreshLeaderboard() async {
+      ref.refresh(leaderboardControllerProvider(searchController.text.trim()));
     }
+
+    void performSearch() {
+      isSearchTriggered.value = true; 
+    }
+
+    useEffect(() {
+      if (isSearchTriggered.value) {
+        ref.refresh(leaderboardControllerProvider(searchController.text.trim()));
+        isSearchTriggered.value = false;
+      }
+      return null;
+    }, [isSearchTriggered.value]);
 
     return Scaffold(
       appBar: AppBar(
         title: SizedBox(
           height: 50,
           child: TextField(
+            controller: searchController,
             decoration: InputDecoration(
               hintText: 'Search player...',
               filled: true,
@@ -30,17 +45,17 @@ class LeaderboardScreen extends HookConsumerWidget {
                 borderSide: BorderSide.none,
               ),
               prefixIcon: const Icon(Icons.search),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.arrow_forward),
+                onPressed: performSearch,
+              ),
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
-            onChanged: (query) {
-              searchQuery.value = query.trim();
-              ref.refresh(leaderboardControllerProvider(searchQuery.value));
-            },
           ),
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: _refreshLeaderboard,
+        onRefresh: refreshLeaderboard,
         child: leaderboardAsyncValue.when(
           data: (leaderboard) {
             if (leaderboard.isEmpty) {
