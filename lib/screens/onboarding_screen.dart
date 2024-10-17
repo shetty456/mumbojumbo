@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mumbojumbo/common/router.dart';
@@ -9,8 +8,6 @@ class OnboardingScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-   
-
     return Scaffold(
       // appBar: AppBar(title: const Text('Welcome to Mumbo Jumbo')),
       body: SafeArea(
@@ -53,17 +50,17 @@ class OnboardingScreen extends HookConsumerWidget {
                 const InstructionItem(
                     text:
                         'Guess the anagram names related to our ashram or spiritual themes.'),
-                const InstructionItem(text: 'Players have 30 seconds to type the right answer.'),
+                const InstructionItem(
+                    text: 'Players have 30 seconds to type the right answer.'),
                 const InstructionItem(
                     text:
                         'Correct guesses earn points and proceed to the next round.'),
                 const InstructionItem(
                     text:
                         'If no one guesses correctly within 30 seconds, the game ends.'),
-                                      const InstructionItem(
-                    text:
-                        'One can attempt a maximum of 20 questions only.'),
-                const Spacer(),
+                const InstructionItem(
+                    text: 'One can attempt a maximum of 20 questions only.'),
+                vHeight(36),
                 ElevatedButton(
                   onPressed: () => context.push(AppRoutePaths.username),
                   child: const Text('Start the Game'),

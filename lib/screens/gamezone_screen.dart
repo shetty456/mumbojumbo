@@ -179,7 +179,7 @@ class GameZoneScreen extends HookWidget {
         score.value += points; // Add points to total score
         nextQuestion();
       } else {
-        endGame();
+        showCenterModal(context, endGame);
       }
     }
 
@@ -248,27 +248,29 @@ class GameZoneScreen extends HookWidget {
                   children: [
                     const Spacer(),
                     CustomPaint(
-                      size:
-                          const Size(60, 60), // Adjust the size of the pie chart
+                      size: const Size(
+                          60, 60), // Adjust the size of the pie chart
                       painter:
                           PieChartPainter(progressValue.value, getPieColor()),
                     ),
                   ],
                 ),
-          
+
                 const SizedBox(height: 32),
                 Text(
                   currentHint.value,
                   style: const TextStyle(
-                      fontSize: 28, color: spcolor, fontWeight: FontWeight.w900),
+                      fontSize: 28,
+                      color: spcolor,
+                      fontWeight: FontWeight.w900),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 60),
                 Text(
                   textAlign: TextAlign.center,
                   currentAnagram.value.toLowerCase(),
-                  style:
-                      const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 64, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 60),
                 TextField(
@@ -302,6 +304,44 @@ class GameZoneScreen extends HookWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void showCenterModal(BuildContext context, Function callback) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissal by tapping outside
+      builder: (BuildContext context) {
+        Future.delayed(const Duration(seconds: 3), () {
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+          callback();
+        });
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              8,
+            ), // Adjust this value for rounded corners
+          ),
+          backgroundColor: Colors.red.shade200,
+          child: const Padding(
+            padding: EdgeInsets.all(24.0),
+            child: SizedBox(
+              height: 50,
+              width: double.infinity,
+              child: Center(
+                child: Text(
+                  'Wrong Answer',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
