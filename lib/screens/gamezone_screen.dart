@@ -93,7 +93,7 @@ class GameZoneScreen extends HookWidget {
         context.go(AppRoutePaths.gameover, extra: {
           'score': score.value,
           'username': username,
-          'correctAnswer': correctAnswer.value, 
+          'correctAnswer': correctAnswer.value,
         });
       }
     }
@@ -186,10 +186,10 @@ class GameZoneScreen extends HookWidget {
 
     void submitAnswer(String answer) {
       if (answer.toLowerCase() == correctAnswer.value.toLowerCase()) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Rightly Guessed'),
-          duration: Duration(seconds: 2),
-        ));
+        // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        //   content: Text('Rightly Guessed'),
+        //   duration: Duration(seconds: 2),
+        // ));
         // Calculate score based on time left
         final int points = calculateScore(30 - timeLeft.value);
         score.value += points; // Add points to total score
@@ -279,11 +279,22 @@ class GameZoneScreen extends HookWidget {
                     ),
                   ),
                   style: const TextStyle(color: Colors.black),
-                  onSubmitted: submitAnswer,
+                  onSubmitted: (value) {
+                    if (value.isNotEmpty) {
+                      submitAnswer(value);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Please enter an answer.'),
+                        duration: Duration(seconds: 2),
+                      ));
+                    }
+                  },
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => submitAnswer(controller.text),
+                  onPressed: isButtonEnabled.value
+                      ? () => submitAnswer(controller.text)
+                      : null,
                   child: const Text('Submit'),
                 ),
               ],
